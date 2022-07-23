@@ -6,21 +6,17 @@ from PyQt5.uic import loadUi
 import sys
 import re
 from PyQt5 import QtCore
-import en_core_web_sm
-import pyttsx3
-import spacy
-import speech_recognition as sr
-from datetime import date, datetime
 
-nlp = spacy.load('en_core_web_sm')
+import pyttsx3
+import speech_recognition as sr
+
+
 
 engine = pyttsx3.init('sapi5')
 voices = engine.getProperty('voices')
 engine.setProperty('voice', voices[1].id)
 
 username = "Siri"
-
-notifier = ToastNotifier()
 
 def speak(audio):
 	engine.say(audio)
@@ -55,7 +51,7 @@ class Window(QWidget):
         self.saveButton.clicked.connect(self.saveChanges)
         self.addButton.clicked.connect(self.addNewTask)
         self.listenButton.clicked.connect(self.listenForTask)
-        
+        self.deleteButton.clicked.connect(self.deleteTask)
 
     def calendarDateChanged(self):
         print("The calendar date was changed.")
@@ -128,11 +124,8 @@ class Window(QWidget):
         if 'task list' in query:
             self.parsingToAdd(query)
             print("Adding to the tasklist")
-        elif 'reminder' in query:
-            print("Adding a reminder")
-            self.setReminder(query)
         else:
-            print('Could\'nt understand, please try again!')
+            print("Error couldn't add to tasklist")
 
 
     def parsingToAdd(self, query):
@@ -154,12 +147,16 @@ class Window(QWidget):
         db.commit()
         self.updateTaskList(date)
 
-
-
-    
-  
-
-
+    def deleteTask(self):
+        db = sqlite3.connect("data.db")
+        cursor = db.cursor()
+        self_date = self.calendarWidget.selectedDate().toPyDate()
+        self_name = self.listWidget.currentItem().text()
+        query = "DELETE FROM tasks WHERE task = ? and date = ?"
+        cursor.execute(query, (self_name, self_date))
+        db.commit()
+        self.updateTaskList(self_date)
+        
             
 if __name__ == "__main__":
     app = QApplication(sys.argv)

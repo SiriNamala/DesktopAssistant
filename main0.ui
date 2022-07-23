@@ -72,7 +72,7 @@ color: rgb(255, 255, 255);
      <string>Add New</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="pushButton_3">
+   <widget class="QPushButton" name="deleteButton">
     <property name="geometry">
      <rect>
       <x>550</x>
